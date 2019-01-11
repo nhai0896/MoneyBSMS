@@ -1,0 +1,129 @@
+{% extends "login_view.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 col-md-offset-4">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Overview</th>
+                        <td></td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Inflow</td>
+                        <td class="text-right">{{ wallet.inflow }}</td>
+                    </tr>
+                    <tr>
+                        <td>Outflow</td>
+                        <td class="text-right">{{ wallet.outflow }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="text-right">{{ wallet.balance }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div> <!-- container -->
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 col-md-offset-4">
+            <table class="table">
+                    <tr>
+                        <td class="text-center">
+                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#transaction">Add Transaction</button>
+                        </td>
+                    </tr>
+            </table>
+        </div>
+    </div>
+</div> <!-- container -->
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 col-md-offset-4">
+            <!-- Modal -->
+            <div id="transaction" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Add transaction</h4>
+                        </div>
+                        <div class="modal-body">
+                            <!-- form -->
+                            <form class="form-horizontal" method="POST" action="{% url 'money:add_transaction' %}" id="add_transaction">
+                                {% csrf_token %}
+                                    <div class="form-group">
+                                        <label for="amount">Amount</label>
+                                        <input class="form-control" type="text" id="amount" name="amount" pattern="[0-9].*">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="category">Category</label>
+                                        <select class="form-control" id="category" name="category">
+                                            {% for c in category %}
+                                                <option>{{ c.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="note">Note</label>
+                                        <input class="form-control" type="text" name="note" id="note">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="time">Time</label>
+                                        <input class="form-control" type="datetime-local" name="time" id="time">
+                                    </div>
+                                    <!--<div class="form-group">
+                                        <label for="wallet">Wallet</label>
+                                        <input class="form-control" type="text" name="wallet" id="wallet">
+                                    </div>-->
+                            </form>
+                            <!-- endform-->
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" type="submit" form="add_transaction">Add</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> <!-- container -->
+<hr/>
+{% if all_transactions %}
+    {% for transaction in all_transactions %}
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 col-md-offset-4">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td>{{ transaction.time }}</td>
+                                <td class="text-right">{{ transaction.amount }}</td>
+                            </tr>
+                            <tr>
+                                <td>{{ transaction.category }}</td>
+                                <td class="text-right"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div> <!-- container -->
+        <hr/>
+    {% endfor %}
+{% else %}
+    <p>No transaction are available.</p>
+{% endif %}
+{% endblock %}
+
+ <!--<ul>
+    {% for question in latest_question_list %}
+        <li><a href="/polls/{{ question.id }}/">{{ question.question_text }}</a></li>
+    {% endfor %}
+    </ul>-->
