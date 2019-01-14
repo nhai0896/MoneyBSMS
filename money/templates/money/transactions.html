@@ -1,4 +1,4 @@
-{% extends "login_view.html" %}
+{% extends "base_generic.html" %}
 
 {% block content %}
 <div class="container">
@@ -7,7 +7,7 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Overview</th>
+                        <th>Transactions of {{ username }}</th>
                         <td></td>
                     </tr>
                 </thead>
@@ -77,10 +77,14 @@
                                         <label for="time">Time</label>
                                         <input class="form-control" type="datetime-local" name="time" id="time">
                                     </div>
-                                    <!--<div class="form-group">
+                                    <div class="form-group">
                                         <label for="wallet">Wallet</label>
-                                        <input class="form-control" type="text" name="wallet" id="wallet">
-                                    </div>-->
+                                        <select class="form-control" id="wallet" name="wallet">
+                                            {% for c in wallets %}
+                                                <option value="{{c.id}}">{{ c.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
                             </form>
                             <!-- endform-->
                         </div>
