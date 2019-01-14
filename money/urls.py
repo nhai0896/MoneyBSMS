@@ -4,6 +4,7 @@ from . import views
 app_name = 'money'
 urlpatterns = [
     path('', views.base_generic, name='base_generic'),
+    #path('accounts/', include('django.contrib.auth.urls')),
     path('accounts/register_form/', views.register, name='register'),
     path('accounts/register/', views.create_account, name='create_account'),
     path('transactions/', views.transactions, name='transactions'),

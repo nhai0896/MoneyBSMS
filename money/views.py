@@ -28,35 +28,31 @@ def create_account(request):
 
 from django.contrib.auth import authenticate, login
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.decorators import login_required
 #inflow, outflow, balance 
+
 category = Category.objects.all()
-def transactions(request):#login_view
-    username = request.POST['username']
-    password = request.POST['password']
-    user = authenticate(request, username=username, password=password)
-    if user is not None:
-        login(request, user)
-        #print("user id = "+str(user.id))
-        # Redirect to a success page.
-        try:
-            """username = request.user.username
-            wallet = Wallet.objects.get(user__username=username)"""
-            userId = request.user.id
-            wallet = Wallet.objects.get(user=userId)
+
+@login_required
+def transactions(request):
+    try:
+        userId = request.user.id
+        #wallet = Wallet.objects.get(user=userId) //loi vi 1 user co the co nhieu hon 1 wallet
+        wallets = Wallet.objects.filter(user__id = userId)
             #Entry.objects.filter(blog__name='Beatles Blog')
             #all_transactions = Transaction.objects.filter(wallet=wallet.id) chua test
-            all_transactions = Transaction.objects.filter(wallet__id=wallet.id)
-            context = {
-                'wallet': wallet,
-                'all_transactions': all_transactions,
-                'category': category,
-            }
-            return render(request, 'money/transactions.html', context)
-        except (ObjectDoesNotExist):
-            return render(request, 'money/wallet.html')
-    else:
-        # Return an 'invalid login' error message.
-        return render(request, 'registration/login.html')
+        #all_transactions = Transaction.objects.filter(wallet__id=wallet.id)
+        all_transactions = Transaction.objects.all()
+        context = {
+            #'wallet': wallet,
+            'username':request.user.username,
+            'wallets': wallets,
+            'all_transactions': all_transactions,
+            'category': category,
+        }
+        return render(request, 'money/transactions.html', context)
+    except (ObjectDoesNotExist):
+        return render(request, 'money/wallet.html')
     
 def add_wallet(request):
     name = request.POST['name']
@@ -69,8 +65,10 @@ def add_wallet(request):
     #print(w.User)
     w.save()
     all_transactions = Transaction.objects.filter(wallet__id=w.id)
+    category = Category.objects.get( name=request.POST['category'])
     context = {
         'all_transactions': all_transactions,
+        'category': category
     }
     return render(request, 'money/transactions.html', context)
 
@@ -82,7 +80,7 @@ def add_transaction(request):
     note = request.POST['note']
     time = request.POST['time']
     #userId = request.user.username
-    wallet = Wallet.objects.get(user=request.user.id)
+    wallet = Wallet.objects.get(id=request.POST['wallet'])
     t = Transaction(wallet = wallet, amount=amount, category=category, note=note, time=time)
     #w.user_username=username
     #print(username)
