@@ -10,8 +10,6 @@ def register(request):
     return render(request, 'registration/register.html')
 
 from django.db import IntegrityError
-import logging
-logger = logging.getLogger(__name__)
 
 def create_account(request):
     username = request.POST['username']#neu dung id cua label thi: request.POST.get('usernemr', False)
@@ -19,45 +17,47 @@ def create_account(request):
     try:
         user = User.objects.create_user(username=username, password=password)
         message = 'successfully!'
-        logger.info(message)
         return render(request, 'registration/login.html')
     except (IntegrityError): 
         message = 'account existed!'
-        logger.info(message)
         return render(request, 'registration/login.html')
-
+    
 from django.contrib.auth import authenticate, login
-from django.core.exceptions import ObjectDoesNotExist
-#inflow, outflow, balance 
-category = Category.objects.all()
-def transactions(request):#login_view
+from django.shortcuts import redirect
+
+def logged_in(request):
     username = request.POST['username']
     password = request.POST['password']
     user = authenticate(request, username=username, password=password)
     if user is not None:
         login(request, user)
-        #print("user id = "+str(user.id))
-        # Redirect to a success page.
-        try:
-            """username = request.user.username
-            wallet = Wallet.objects.get(user__username=username)"""
-            userId = request.user.id
-            wallet = Wallet.objects.get(user=userId)
-            #Entry.objects.filter(blog__name='Beatles Blog')
-            #all_transactions = Transaction.objects.filter(wallet=wallet.id) chua test
-            all_transactions = Transaction.objects.filter(wallet__id=wallet.id)
-            context = {
-                'wallet': wallet,
-                'all_transactions': all_transactions,
-                'category': category,
-            }
-            return render(request, 'money/transactions.html', context)
-        except (ObjectDoesNotExist):
-            return render(request, 'money/wallet.html')
+        return redirect('money:transactions')
     else:
-        # Return an 'invalid login' error message.
         return render(request, 'registration/login.html')
-    
+
+from django.contrib.auth import authenticate, login
+from django.core.exceptions import ObjectDoesNotExist
+
+category = Category.objects.all()
+def transactions(request):#login_view
+    try:
+        username = request.user.username
+        wallet = Wallet.objects.get(user=request.user.id)
+        #Entry.objects.filter(blog__name='Beatles Blog')
+        all_transactions = Transaction.objects.filter(wallet=wallet.id)
+        context = {
+            'username':username,
+            'wallet': wallet,
+            'all_transactions': all_transactions,
+            'category': category,
+        }
+        return render(request, 'money/transactions.html', context)
+    except (ObjectDoesNotExist):
+        context = {
+            'username':username,
+        }
+        return render(request, 'money/wallet.html', context)
+
 def add_wallet(request):
     name = request.POST['name']
     currency = request.POST['currency']
@@ -68,33 +68,33 @@ def add_wallet(request):
     #print(username)
     #print(w.User)
     w.save()
-    all_transactions = Transaction.objects.filter(wallet__id=w.id)
-    context = {
-        'all_transactions': all_transactions,
-    }
-    return render(request, 'money/transactions.html', context)
-
+    return redirect('money:transactions')
+    
 def add_transaction(request):
     amount = request.POST['amount']
-    category = Category.objects.get( name=request.POST['category'])
+    lcategory = Category.objects.get( name=request.POST['category'])
     #name=request.POST.get('category', False)
     #print(name)
     note = request.POST['note']
     time = request.POST['time']
     #userId = request.user.username
     wallet = Wallet.objects.get(user=request.user.id)
-    t = Transaction(wallet = wallet, amount=amount, category=category, note=note, time=time)
+    t = Transaction(wallet = wallet, amount=amount, category=lcategory, note=note, time=time)
+    if lcategory.code == 'E':
+        wallet.balance = str(int(wallet.balance) - int(amount))
+        wallet.outflow = str(int(amount) + int(wallet.outflow))
+    else:
+        wallet.balance = str(int(amount) + int(wallet.balance))
+        wallet.inflow = str(int(amount) + int(wallet.inflow))
     #w.user_username=username
     #print(username)
     #print(w.User)
     t.save()
-    all_transactions = Transaction.objects.filter(wallet__id=wallet.id)
-    context = {
-        'all_transactions': all_transactions,
-    }
-    return render(request, 'money/transactions.html', context)
-
+    wallet.save()
+    return redirect('money:transactions')
+    
 from django.contrib.auth import logout
+
 def logout_view(request):
     logout(request)
     # Redirect to a success page.

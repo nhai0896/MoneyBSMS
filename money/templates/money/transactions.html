@@ -1,4 +1,14 @@
-{% extends "login_view.html" %}
+{% extends "base_generic.html" %}
+
+{% block dropdown %}
+    <li class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="{% url 'login' %}">{{ username }}</a>
+        <ul class="dropdown-menu">
+            <!--<li><a href="{% url 'login' %}">Login</a></li>-->
+            <li><a href="{% url 'money:logout_view' %}">Logout</a></li>
+        </ul>
+    </li>
+{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -75,7 +85,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="time">Time</label>
-                                        <input class="form-control" type="datetime-local" name="time" id="time">
+                                        <input class="form-control" type="date" name="time" id="time">
                                     </div>
                                     <!--<div class="form-group">
                                         <label for="wallet">Wallet</label>
@@ -115,7 +125,7 @@
                 </div>
             </div>
         </div> <!-- container -->
-        <hr/>
+        <br><br><br>
     {% endfor %}
 {% else %}
     <p>No transaction are available.</p>
