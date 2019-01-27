@@ -4,10 +4,17 @@ from datetime import date
 
 # Create your models here.
 
+class Currency(models.Model):#don vi tien te
+    name = models.CharField(max_length=100)
+    sign = models.CharField(max_length=5)
+    ios = models.CharField(max_length=5, blank=True)
+    def __str__(seft):
+        return seft.name
+
 class Wallet(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
-    currency = models.CharField(max_length=250) #don vi tien te
     inflow = models.CharField(max_length=100, default='0')
     outflow = models.CharField(max_length=100, default='0')
     balance = models.CharField(max_length=100)
@@ -28,7 +35,7 @@ class Transaction(models.Model):
     wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     amount = models.CharField(max_length=250)
-    note = models.CharField(max_length=250)
+    note = models.CharField(max_length=250, blank=True)
     time = models.DateField(default=date.today())
     def __str__(self):
         return self.note

@@ -13,6 +13,17 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style>
+        #navbar-brand {
+            position: absolute;
+            left: 45%;
+            text-align: center;
+            margin: auto;
+        }
+        body {
+            padding-right: 0 !important 
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-inverse">
@@ -31,6 +42,8 @@
         </ul>
         </li>-->
     </ul>
+    {% block navbar-brand %}
+    {% endblock %}
     </div>
     </nav>
     <div class="container">
