@@ -20,7 +20,7 @@ def create_account(request):
         return render(request, 'registration/login.html')
     except (IntegrityError): 
         message = 'account existed!'
-        return render(request, 'registration/login.html')
+        return render(request, 'registration/register.html')
     
 from django.contrib.auth import authenticate, login
 from django.shortcuts import redirect
