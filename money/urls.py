@@ -3,9 +3,8 @@ from . import views
 
 app_name = 'money'
 urlpatterns = [
-    path('', views.base_generic, name='base_generic'),
+    path('', views.home, name='home'),
     path('register/', views.register, name='register'),
-    #path('accounts/register_form/', views.register, name='register'),
     path('accounts/register/', views.create_account, name='create_account'),
     path('transactions/', views.transactions, name='transactions'),
     path('transactions/<wallet_id>', views.transactions_in_wallet, name='transactions_in_wallet'),

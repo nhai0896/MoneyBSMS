@@ -3,9 +3,12 @@ from django.http import HttpResponse
 from .models import Wallet, Category, Transaction, Currency
 from django.contrib.auth.models import User
 
-def base_generic(request):
-    #return 0 cac ham lien ket trong url phai tra ve httpresponse 
-    return render(request, 'base_generic.html')
+def home(request):
+    if request.user.is_authenticated:
+        return redirect('money:transactions')
+    else:
+        return redirect('login')
+
 def register(request):
     return render(request, 'registration/register.html')
 
@@ -24,16 +27,6 @@ def create_account(request):
     
 from django.contrib.auth import authenticate, login
 from django.shortcuts import redirect
-
-def logged_in(request):
-    username = request.POST['username']
-    password = request.POST['password']
-    user = authenticate(request, username=username, password=password)
-    if user is not None:
-        login(request, user)
-        return redirect('money:transactions')
-    else:
-        return render(request, 'registration/login.html')
 
 from django.contrib.auth import authenticate, login
 from django.core.exceptions import ObjectDoesNotExist
@@ -142,45 +135,3 @@ def add_transaction(request):
 
 def add_message(request):
     return render(request, 'money/wallets.html')
-    
-from django.contrib.auth import logout
-
-def logout_view(request):
-    logout(request)
-    # Redirect to a success page.
-    return render(request, 'registration/logged_out.html')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
