@@ -10,4 +10,6 @@ urlpatterns = [
     path('transactions/<wallet_id>', views.transactions_in_wallet, name='transactions_in_wallet'),
     path('add_wallet/', views.add_wallet, name='add_wallet'),
     path('add_transactions/', views.add_transaction, name='add_transaction'),
+
+    path('add_wl/', views.add_wl, name='add_wl'),
 ]

@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
 from django.db import models
 from datetime import date
+from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 # Create your models here.
 
@@ -20,7 +22,11 @@ class Wallet(models.Model):
     balance = models.CharField(max_length=100)
     def __str__(self):
         return self.name
-    
+    def clean(self):            
+        matching_wallets = Wallet.objects.filter(name = self.name, user = self.user)
+        if matching_wallets.exists():
+            raise ValidationError(_('Duplicate name'))
+
 class Category(models.Model):
     CODE = (
         ('E', 'EXPENSE'),
