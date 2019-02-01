@@ -32,10 +32,7 @@
         <a class="navbar-brand" href="/">Home</a>
     </div>
     <ul class="nav navbar-nav">
-        {% if user.is_authenticated %}
-        <li><a class="active" href="{% url 'money:transactions'%}">Transactions</a></li>
-        <li><a href="{% url 'money:add_wl'%}">Add Wallet</a></li>
-      {% endif %}
+        
     </ul>
     <ul class="nav navbar-nav navbar-right">
         {% if user.is_authenticated %}

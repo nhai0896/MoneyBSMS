@@ -85,32 +85,23 @@ def transactions_in_wallet(request, wallet_id):
     }
     return render(request, 'money/transactions.html', context)
     
-from django.core.exceptions import ValidationError
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.utils.translation import ugettext_lazy as _
 
+@login_required
 def add_wallet(request):
-    username = request.user.username
     name = request.POST['name']
     cur = Currency.objects.get( name=request.POST['currency'])
     balance = request.POST['balance']
-    #userId = request.user.username
-    a = True
-    all_wallets = Wallet.objects.filter(user=request.user.id)
-    for wallet in all_wallets:
-        if name == wallet.name:
-            a = False
-            raise ValidationError(_('Invalid date - renewal in past'))
-            break
-    if a:
+    try:
         w = Wallet(user=request.user, name=name, currency=cur, balance=balance)
-        #w.user_username=username
-        #print(username)
-        #print(w.User)
+        w.clean()
         w.save()
         return redirect('money:transactions_in_wallet', w.id)
-    else:
+    except ValidationError as e:
+        #not sure how to display error message
+        #non_field_errors = e.message_dict[NON_FIELD_ERRORS]
         context = {
-            'username':username,
             'currency': currency,
         }
         return render(request,'money/wallet.html', context)
@@ -141,26 +132,3 @@ def add_transaction(request):
 
 def add_message(request):
     return render(request, 'money/wallets.html')
-
-@login_required
-def add_wl(request):
-    if request.method == 'POST':
-        form = WalletForm(request.POST)
-        if form.is_valid():
-            # process the data in form.cleaned_data as required (here we just write it to the model due_back field)
-            wallet = form.save(commit = False)
-            wallet.user = request.user
-            wallet.save();
-            return redirect('money:transactions_in_wallet', wallet.id)
-
-    # If this is a GET (or any other method) create the default form.
-    else:
-        form = WalletForm()
-
-    currency = Currency.objects.all()
-    context = {
-        'form': form,
-        'currency': currency
-    }
-
-    return render(request, 'money/add_wallet.html', context)
