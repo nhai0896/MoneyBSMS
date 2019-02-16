@@ -2,10 +2,17 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from .models import Wallet, Category, Transaction, Currency
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login
+from django.shortcuts import redirect
+from datetime import date, datetime
+from .sms import *
 
 def base_generic(request):
     #return 0 cac ham lien ket trong url phai tra ve httpresponse 
-    return render(request, 'base_generic.html')
+    if request.user.is_authenticated:
+        return redirect('money:transactions')
+    else:
+        return render(request, 'base_generic.html')
 def register(request):
     return render(request, 'registration/register.html')
 
@@ -16,26 +23,10 @@ def create_account(request):
     password = request.POST['password']
     try:
         user = User.objects.create_user(username=username, password=password)
-        message = 'successfully!'
         return render(request, 'registration/login.html')
     except (IntegrityError): 
-        message = 'account existed!'
-        return render(request, 'registration/login.html')
+        return render(request, 'registration/register.html')
     
-from django.contrib.auth import authenticate, login
-from django.shortcuts import redirect
-
-def logged_in(request):
-    username = request.POST['username']
-    password = request.POST['password']
-    user = authenticate(request, username=username, password=password)
-    if user is not None:
-        login(request, user)
-        return redirect('money:transactions')
-    else:
-        return render(request, 'registration/login.html')
-
-from django.contrib.auth import authenticate, login
 from django.core.exceptions import ObjectDoesNotExist
 
 currency = Currency.objects.all()
@@ -63,6 +54,7 @@ def transactions(request):#login_view all_wallets
             'all_wallets': all_wallets,
             'in_wallet':'All wallets',
             'currency': currency,
+            'bank': bank,
         }
         return render(request, 'money/transactions.html', context)
     else:
@@ -87,6 +79,7 @@ def transactions_in_wallet(request, wallet_id):
         'in_wallet': wallet.name,
         'wallet_id': int(wallet_id),
         'currency': currency,
+        'bank': bank,
     }
     return render(request, 'money/transactions.html', context)
     
@@ -125,7 +118,8 @@ def add_transaction(request):
     #print(name)
     note = request.POST['note']
     time = request.POST['time']
-    #userId = request.user.username
+    #tim = time.split("-")
+    #date = datetime.date(int(tim[2]), int(tim[0]), int(tim[1]))
     t = Transaction(wallet = wallet, amount=amount, category=lcategory, note=note, time=time)
     if lcategory.code == 'E':
         wallet.balance = str(int(wallet.balance) - int(amount))
@@ -143,13 +137,6 @@ def add_transaction(request):
 def add_message(request):
     return render(request, 'money/wallets.html')
     
-from django.contrib.auth import logout
-
-def logout_view(request):
-    logout(request)
-    # Redirect to a success page.
-    return render(request, 'registration/logged_out.html')
-
 
 
 

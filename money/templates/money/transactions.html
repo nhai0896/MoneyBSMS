@@ -5,7 +5,7 @@
         <a class="dropdown-toggle" data-toggle="dropdown" href="{% url 'login' %}">{{ username }}</a>
         <ul class="dropdown-menu">
             <!--<li><a href="{% url 'login' %}">Login</a></li>-->
-            <li><a href="{% url 'money:logout_view' %}">Logout</a></li>
+            <li><a href="{% url 'logout' %}">Logout</a></li>
         </ul>
     </li>
 {% endblock %}
@@ -74,6 +74,67 @@
                                 <td>{{ transaction.category }}</td>
                                 <td class="text-right"></td>
                             </tr>
+                            <div id="edit_transaction" class="modal fade" role="dialog">
+                                <div class="modal-dialog">
+                                    <!-- Modal content-->
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            <h4 class="modal-title">Edit transaction</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form method="POST" action="{% url 'money:add_transaction' %}" id="add_transaction">
+                                                {% csrf_token %}
+                                                <div class="form-group">
+                                                    <label for="amount" class="col-form-label">Amount</label>
+                                                    <input class="form-control" type="text" id="amount" name="amount" pattern="[0-9].*" value="{{ transaction.amount }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="category" class="col-form-label">Category</label>
+                                                    <select class="form-control" id="category" name="category">
+                                                        {% for c in category %}
+                                                            {% if c.id == transaction.category %}
+                                                                <option selected>{{ c.name }}</option>
+                                                            {% else %}
+                                                                <option>{{ c.name }}</option>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="note" class="col-form-label">Note</label>
+                                                    <input class="form-control" type="text" name="note" id="note" value="{{ transaction.note }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="time" class="col-form-label">Time</label>
+                                                    <input class="form-control" type="date" name="time" id="time" value="{{ transaction.amount }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="wallet" class="col-form-label">Wallet</label>
+                                                    <select class="form-control" id="wallet" name="wallet">
+                                                        {% for w in all_wallets %}
+                                                            {% if w.id == transaction.wallet %}
+                                                                <option selected>{{ w.name }}</option>
+                                                            {% else %}
+                                                                <option>{{ w.name }}</option>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <!--<div class="form-group">
+                                                    <label for="wallet">Wallet</label>
+                                                    <input class="form-control" type="text" name="wallet" id="wallet">
+                                                </div>-->
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
+                                            <button type="submit" class="btn btn-primary">Delete</button>
+                                            <button type="submit" class="btn btn-primary">Done</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <script>
                                 $('.clickable-tr').on('click', function(){
                                     var myLink = $(this).attr('href');
@@ -100,7 +161,7 @@
             </div>
             <div class="modal-body">
                 <!-- form -->
-                <form method="POST" action="{% url 'money:add_transaction' %}" id="add_transaction">
+                <form method="POST" action="{% url 'money:add_transaction' %}" id="add_transaction" role="form">
                     {% csrf_token %}
                     <div class="form-group">
                         <label for="amount" class="col-form-label">Amount</label>
@@ -177,51 +238,6 @@
         </div>
     </div>
 </div>
-<div id="edit_transaction" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Edit transaction</h4>
-            </div>
-            <div class="modal-body">
-                <form method="POST" action="{% url 'money:add_transaction' %}" id="add_transaction">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label for="amount" class="col-form-label">Amount</label>
-                        <input class="form-control" type="text" id="amount" name="amount" pattern="[0-9].*">
-                    </div>
-                    <div class="form-group">
-                        <label for="category" class="col-form-label">Category</label>
-                        <select class="form-control" id="category" name="category">
-                            {% for c in category %}
-                                <option>{{ c.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="note" class="col-form-label">Note</label>
-                        <input class="form-control" type="text" name="note" id="note">
-                    </div>
-                    <div class="form-group">
-                        <label for="time" class="col-form-label">Time</label>
-                        <input class="form-control" type="date" name="time" id="time">
-                    </div>
-                    <!--<div class="form-group">
-                        <label for="wallet">Wallet</label>
-                        <input class="form-control" type="text" name="wallet" id="wallet">
-                    </div>-->
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
-                <button type="submit" class="btn btn-primary">Delete</button>
-                <button type="submit" class="btn btn-primary">Done</button>
-            </div>
-        </div>
-    </div>
-</div>
 <div id="report" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <!-- Modal content-->
@@ -248,17 +264,32 @@
                 <h4 class="modal-title">Add transaction</h4>
             </div>
             <div class="modal-body">
-                <form method="POST" action="{% url 'money:add_transaction' %}" id="add_transaction">
+                <form method="POST" action="" id="add_mesage">
                     {% csrf_token %}
                     <div class="form-group">
                         <label for="message" class="col-form-label">Message:</label>
-                        <textarea class="form-control" id="message"></textarea>
+                        <textarea class="form-control" id="message" pattern="{{ bank }}"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="wallet" class="col-form-label">Wallet</label>
+                        <select class="form-control" id="wallet" name="wallet">
+                            {% for w in all_wallets %}
+                                {% if w.id == wallet_id %}
+                                    <option selected>{{ w.name }}</option>
+                                {% else %}
+                                    <option>{{ w.name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
+                <div class="text-left">
+                    <a data-toggle="modal" data-target="#transaction" href="" data-dismiss="modal">Transaction</a>
+                </div>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
-                <button type="submit" class="btn btn-primary">Add</button>
+                <button type="submit" class="btn btn-primary" form="add_message">Add</button>
             </div>
         </div>
     </div>

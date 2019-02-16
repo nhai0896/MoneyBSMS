@@ -4,12 +4,10 @@ from . import views
 app_name = 'money'
 urlpatterns = [
     path('', views.base_generic, name='base_generic'),
-    path('accounts/register_form/', views.register, name='register'),
     path('accounts/register/', views.create_account, name='create_account'),
-    path('accounts/logged_in/', views.logged_in, name='logged_in'),
+    path('register/', views.register, name='register'),
     path('transactions/', views.transactions, name='transactions'),
     path('transactions/<wallet_id>', views.transactions_in_wallet, name='transactions_in_wallet'),
     path('add_wallet/', views.add_wallet, name='add_wallet'),
-    path('logged_out/', views.logout_view, name='logout_view'),
     path('add_transactions/', views.add_transaction, name='add_transaction'),
 ]
