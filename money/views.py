@@ -118,6 +118,7 @@ def add_transaction(request):
     #print(name)
     note = request.POST['note']
     time = request.POST['time']
+    print('-----'+time+'======'+amount+'-----')
     #tim = time.split("-")
     #date = datetime.date(int(tim[2]), int(tim[0]), int(tim[1]))
     t = Transaction(wallet = wallet, amount=amount, category=lcategory, note=note, time=time)

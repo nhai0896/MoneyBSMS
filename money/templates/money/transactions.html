@@ -70,11 +70,11 @@
                                 <td>{{ transaction.time }}</td>
                                 <td class="text-right">{{ transaction.amount }}</td>
                             </tr>
-                            <tr class='clickable-tr' data-toggle="modal" data-target="#edit_transaction" href="#">
+                            <tr class='clickable-tr' data-toggle="modal" data-target="#edit_transaction{{ transaction.id }}" href="#">
                                 <td>{{ transaction.category }}</td>
                                 <td class="text-right"></td>
                             </tr>
-                            <div id="edit_transaction" class="modal fade" role="dialog">
+                            <div id="edit_transaction{{ transaction.id }}" class="modal fade" role="dialog">
                                 <div class="modal-dialog">
                                     <!-- Modal content-->
                                     <div class="modal-content">
@@ -83,7 +83,7 @@
                                             <h4 class="modal-title">Edit transaction</h4>
                                         </div>
                                         <div class="modal-body">
-                                            <form method="POST" action="{% url 'money:add_transaction' %}" id="add_transaction">
+                                            <form method="POST" action="{% url 'money:add_transaction' %}" id="edit_transaction_form_{{ transaction.id }}">
                                                 {% csrf_token %}
                                                 <div class="form-group">
                                                     <label for="amount" class="col-form-label">Amount</label>
@@ -93,7 +93,7 @@
                                                     <label for="category" class="col-form-label">Category</label>
                                                     <select class="form-control" id="category" name="category">
                                                         {% for c in category %}
-                                                            {% if c.id == transaction.category %}
+                                                            {% if c == transaction.category %}
                                                                 <option selected>{{ c.name }}</option>
                                                             {% else %}
                                                                 <option>{{ c.name }}</option>
@@ -107,13 +107,13 @@
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="time" class="col-form-label">Time</label>
-                                                    <input class="form-control" type="date" name="time" id="time" value="{{ transaction.amount }}">
+                                                    <input class="form-control" type="date" name="time" id="time" value="{{ transaction.time|date:"c" }}">
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="wallet" class="col-form-label">Wallet</label>
                                                     <select class="form-control" id="wallet" name="wallet">
                                                         {% for w in all_wallets %}
-                                                            {% if w.id == transaction.wallet %}
+                                                            {% if w == transaction.wallet %}
                                                                 <option selected>{{ w.name }}</option>
                                                             {% else %}
                                                                 <option>{{ w.name }}</option>
@@ -180,7 +180,7 @@
                         <input class="form-control" type="text" name="note" id="note">
                     </div>
                     <div class="form-group">
-                        <label for="time" class="col-form-label">Time</label>
+                        <label for="time" class="col-form-label">Date</label>
                         <input class="form-control" type="date" name="time" id="time">
                     </div>
                     <div class="form-group">
