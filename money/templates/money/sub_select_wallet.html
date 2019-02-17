@@ -1,0 +1,30 @@
+<div id="all_wallets" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Select wallet</h4>
+            </div>
+            <div class="modal-body">
+                <p><a href="{% url 'money:transactions' %}">All wallets</a></p>
+                <hr>
+                <table>
+                    <thead>
+                    </thead>
+                    <tbody class="table">
+                        {% for wallet in all_wallets %}
+                        <tr>
+                            <td><a href="{% url 'money:transactions_in_wallet' wallet.id %}">{{ wallet.name }}</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" data-toggle="modal" data-target="#add_wallet">Add wallet</button>
+            </div>
+        </div>
+    </div>
+</div>

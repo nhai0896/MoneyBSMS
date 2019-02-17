@@ -1,0 +1,57 @@
+<div id="transaction" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+    <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Add transaction</h4>
+            </div>
+            <div class="modal-body">
+                <!-- form -->
+                <form method="POST" action="{% url 'money:add_transaction' %}" id="add_transaction" role="form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="amount" class="col-form-label">Amount</label>
+                        <input class="form-control" type="text" id="amount" name="amount" pattern="[0-9].*">
+                    </div>
+                    <div class="form-group">
+                        <label for="category" class="col-form-label">Category</label>
+                        <select class="form-control" id="category" name="category">
+                            {% for c in category %}
+                                <option>{{ c.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="note" class="col-form-label">Note</label>
+                        <input class="form-control" type="text" name="note" id="note">
+                    </div>
+                    <div class="form-group">
+                        <label for="time" class="col-form-label">Date</label>
+                        <input class="form-control" type="date" name="time" id="time">
+                    </div>
+                    <div class="form-group">
+                        <label for="wallet" class="col-form-label">Wallet</label>
+                        <select class="form-control" id="wallet" name="wallet">
+                            {% for w in all_wallets %}
+                                {% if w.id == wallet_id %}
+                                    <option selected>{{ w.name }}</option>
+                                {% else %}
+                                    <option>{{ w.name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+                <!-- endform-->
+            </div>
+            <div class="modal-footer">
+                <div class="text-left">
+                    <a data-toggle="modal" data-target="#sms" href="" data-dismiss="modal">SMSBanking</a>
+                </div>
+                <button class="btn btn-primary" type="submit" form="add_transaction">Add</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
+            </div>
+        </div>
+    </div>
+</div> 
