@@ -33,6 +33,7 @@ class Category(models.Model):
     )
     name = models.CharField(max_length=200)
     code = models.CharField(max_length=1, choices=CODE)
+    color = models.CharField(max_length=250, blank=True)
     def __str__(self):
         return self.name
     

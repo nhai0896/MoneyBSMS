@@ -118,7 +118,8 @@ def add_wallet(request):
 def add_transaction(request):
     amount = request.POST['amount']
     lcategory = Category.objects.get(name=request.POST['category'])
-    wallet = Wallet.objects.filter(user=request.user).exclude(name=request.POST['wallet']).get()
+    #wallet = Wallet.objects.filter(user=request.user).exclude(name=request.POST['wallet']).get()
+    wallet = Wallet.objects.filter(name=request.POST['wallet']).get(user=request.user)
     #name=request.POST.get('category', False)
     #print(name)
     note = request.POST['note']
@@ -219,11 +220,50 @@ def delete_or_edit_wallet(request, wallet_id):
         if a:
             wallet.save()
         return redirect('money:transactions_in_wallet', wallet.id)
-        
-            
-        
+    
+# Chart.js
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.db.models import Sum
 
+class ChartData(APIView):
+    authentication_classes = (SessionAuthentication, BasicAuthentication)
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, format=None):
         
+        #unicode(request.user)
+        categ_amount= Transaction.objects.filter(wallet__user=request.user.id).values('category').order_by('category').annotate(total_amount=Sum('amount'))
+        
+        #categ_amount = Transaction.objects.values('category').order_by('category').annotate(total_amount=Sum('amount'))
+        
+        #print(request.user)
+        #print(categ_amount)
+        
+        labels = []
+        color = []
+        default_items = []
+        #fruits.append("orange")
+        for c in categ_amount:
+            default_items.append(c['total_amount'])
+            cate = Category.objects.get(pk=c['category'])
+            labels.append(cate.name)
+            color.append(cate.color)
+        
+        data = {
+                "labels": labels,
+                "default": default_items,
+                "color": color,
+        }
+        return Response(data)
+    
+	
+	
+	
+	
+
 
 
 
