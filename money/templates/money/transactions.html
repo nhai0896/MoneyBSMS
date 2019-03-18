@@ -18,14 +18,31 @@
 <div class="container">
     <div class="row">
         <div class="col-md-4 col-md-offset-4">
+            <div class="center">
+                {% if wallet_id %}
+                    <div class="pagination">
+                        <div class="pagination center">
+                            <a href="{% url 'money:dec_month' wallet_id %}">❮</a>
+                            <a href="">{{ ddate }}</a>
+                            <a href="{% url 'money:inc_month' wallet_id %}">❯</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="pagination">
+                        <div class="pagination center">
+                            <a href="{% url 'money:decrement_month' %}">❮</a>
+                            <a href="">{{ ddate }}</a>
+                            <a href="{% url 'money:increment_month' %}">❯</a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
             <table class="table">
-                <thead>
+                 <tbody>
                     <tr>
                         <th>Overview</th>
                         <td></td>
                     </tr>
-                </thead>
-                <tbody>
                     <tr>
                         <td>Inflow</td>
                         <td class="text-right">{{ wallet.inflow }}</td>
@@ -332,12 +349,9 @@
                         }]
                     },
                     options: {
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    beginAtZero:true
-                                }
-                            }]
+                        title: {
+                            display: true,
+                            text: 'Report By Category',
                         }
                     }
                 });
@@ -345,7 +359,7 @@
                 {% endblock %}
             </script>
             <div class="modal-body">
-                <canvas id="myChart" width="800" height="450"></canvas>
+                <canvas id="myChart" width="750" height="400"></canvas>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
@@ -366,7 +380,7 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="message" class="col-form-label">Message:</label>
-                        <textarea class="form-control" id="message" name="message" pattern="{{ bank }}" title="BIDV\Vietinbank\Vietcombank\TPBank\Agribank"></textarea>
+                        <textarea class="form-control" id="message" name="message" required data-pattern="{{ bank }}"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="wallet" class="col-form-label">Wallet</label>
@@ -413,10 +427,11 @@
                     </div>
                     <div class="form-group">
                         <label for="currency" class="col-form-label">Currency</label>
-                            <select class="form-control" id="currency" name="currency">
-                                {% for c in currency %}
-                                    <option>{{ c.name }}</option>
-                                {% endfor %}
+                            <select class="form-control" id="currency" name="currency" disabled>
+                                <!--{% for c in currency %}
+                                    <option >{{ c.name }}</option>
+                                {% endfor %}-->
+                                <option selected>United States Dollar</option>
                             </select>
                     </div>
                     <div class="form-group">
@@ -461,15 +476,12 @@
                         </div>
                         <div class="form-group">
                             <label for="currency" class="col-form-label">Currency</label>
-                                <select class="form-control" id="currency" name="currency">
-                                    {% for c in currency %}
-                                        {% if c == wallet.currency %}
-                                            <option selected>{{ c.name }}</option>
-                                        {% else %}
-                                            <option>{{ c.name }}</option>
-                                        {% endif %}
-                                    {% endfor %}
-                                </select>
+                                <select class="form-control" id="currency" name="currency" disabled>
+                                <!--{% for c in currency %}
+                                    <option >{{ c.name }}</option>
+                                {% endfor %}-->
+                                <option selected>United States Dollar</option>
+                            </select>
                         </div>
                     </div>
                     <div class="modal-footer">

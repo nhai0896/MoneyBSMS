@@ -33,14 +33,36 @@
         .aleft {
             float: left;
         }
+        .pagination {
+            display: inline-block;
+        }
+
+        .pagination a {
+            color: black;
+            float: left;
+            padding: 8px 16px;
+            text-decoration: none;
+            transition: background-color .3s;
+        }
+
+        .pagination a.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .pagination a:hover:not(.active) {background-color: #ddd;}
+        
+        .center {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-inverse">
     <div class="container-fluid">
-    <div class="navbar-header">
+    <!--<div class="navbar-header">
         <a class="navbar-brand" href="#">Home</a>
-    </div>
+    </div>-->
     <ul class="nav navbar-nav navbar-right">
         {% block dropdown %}
             <li><a href="{% url 'money:register'%}">Sign up</a></li>   

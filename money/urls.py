@@ -13,6 +13,10 @@ urlpatterns = [
     path('delete_or_edit/<transaction_id>', views.delete_or_edit, name='delete_or_edit'),
     path('delete_or_edit_wallet/<wallet_id>', views.delete_or_edit_wallet, name='delete_or_edit_wallet'),
     path('add_message/', views.add_message, name='add_message'),
+    path('increment_month/', views.increment_month, name='increment_month'),
+    path('decrement_month/', views.decrement_month, name='decrement_month'),
+    path('inc_month/<wallet_id>', views.inc_month, name='inc_month'),
+    path('dec_month/<wallet_id>', views.dec_month, name='dec_month'),
    # path('chart/', views.chart, name='chart'),
 ]
 
