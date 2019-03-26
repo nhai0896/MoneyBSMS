@@ -23,7 +23,8 @@ from money import views
 urlpatterns = [
     path('money/', include('money.urls')),
     path('admin/', admin.site.urls),
-    path('api/chart/data/', views.ChartData.as_view()),
+    path('api/chart/data/', views.ChartData.as_view(), name = 'chartdata'),
+    path('api/chart/data/<wallet_id>/', views.ChartDataWallet.as_view(), name = 'chartdatawallet'),
 ]
 
 from django.views.generic import RedirectView

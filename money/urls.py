@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 
+#from .views import ChartDataWallet
+
 app_name = 'money'
 urlpatterns = [
     path('', views.base_generic, name='base_generic'),

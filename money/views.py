@@ -141,7 +141,6 @@ def transactions_in_wallet(request, wallet_id):
 def add_wallet(request):
     username = request.user.username
     name = request.POST['name']
-    cur = Currency.objects.get( name=request.POST['currency'])
     balance = request.POST['balance']
     #userId = request.user.username
     a = True
@@ -151,10 +150,10 @@ def add_wallet(request):
             a = False
             break
     if a:
-        w = Wallet(user=request.user, name=name, currency=cur, balance=balance, inflow=balance)
+        w = Wallet(user=request.user, name=name, balance=balance)
         w.save()
         lcategory = Category.objects.filter(name='Others_Income').get()
-        t = Transaction(wallet = w, amount=balance, category=lcategory, time=d)
+        t = Transaction(wallet = w, amount=balance, category=lcategory, time=dstr)
         t.save()
         return redirect('money:transactions_in_wallet', w.id)
     else:
@@ -175,12 +174,6 @@ def add_transaction(request):
     time = request.POST['time']
     #userId = request.user.username
     t = Transaction(wallet = wallet, amount=amount, category=lcategory, note=note, time=time)
-    if lcategory.code == 'E':
-        wallet.balance = str(int(wallet.balance) - int(amount))
-        wallet.outflow = str(int(amount) + int(wallet.outflow))
-    elif lcategory.code == 'I':
-        wallet.balance = str(int(amount) + int(wallet.balance))
-        wallet.inflow = str(int(amount) + int(wallet.inflow))
     #w.user_username=username
     #print(username)
     #print(w.User)
@@ -212,12 +205,6 @@ def add_message(request):
         Message(message, i)
         lcategory = Category.objects.get(name=result['Category'])
         t = Transaction(wallet = wallet, amount=result['Amount'], category=lcategory, note=result['Note'], time=result['Time'])
-        if lcategory.code == 'E':
-            wallet.balance = str(int(wallet.balance) - int(result['Amount']))
-            wallet.outflow = str(int(result['Amount']) + int(wallet.outflow))
-        elif lcategory.code == 'I':
-            wallet.balance = str(int(result['Amount']) + int(wallet.balance))
-            wallet.inflow = str(int(result['Amount']) + int(wallet.inflow))
         t.save()
         wallet.save()
     return redirect('money:transactions_in_wallet', wallet.id)
@@ -226,12 +213,6 @@ def add_message(request):
 def delete_or_edit(request, transaction_id):
     transaction = Transaction.objects.get(pk=transaction_id)
     wallet = Wallet.objects.filter(transaction__id=transaction_id).get()
-    if transaction.category.code == 'E':
-            wallet.balance = str(int(wallet.balance) + int(transaction.amount))
-            wallet.outflow = str(int(wallet.outflow) - int(transaction.amount))
-    elif transaction.category.code == 'I':
-        wallet.balance = str(int(wallet.balance) - int(transaction.amount))
-        wallet.inflow = str(int(wallet.inflow) - int(transaction.amount))
     if 'yes' in request.POST:
         wallet.save()
         transaction.delete()
@@ -242,13 +223,6 @@ def delete_or_edit(request, transaction_id):
         transaction.category = lcategory
         transaction.note = request.POST['note']
         transaction.time = request.POST['time']
-        
-        if lcategory.code == 'E':
-            wallet.balance = str(int(wallet.balance) - int(transaction.amount))
-            wallet.outflow = str(int(transaction.amount) + int(wallet.outflow))
-        elif lcategory.code == 'I':
-            wallet.balance = str(int(transaction.amount) + int(wallet.balance))
-            wallet.inflow = str(int(transaction.amount) + int(wallet.inflow))
             
         transaction.save()
         wallet.save()
@@ -261,7 +235,6 @@ def delete_or_edit_wallet(request, wallet_id):
         return redirect('money:transactions')
     elif 'save' in request.POST:
         wallet.name = request.POST['name']
-        wallet.currency = Currency.objects.get( name=request.POST['currency'])
         a = True
         all_wallets = Wallet.objects.filter(user=request.user.id)
         for w in all_wallets:
@@ -285,8 +258,7 @@ class ChartData(APIView):
 
     def get(self, request, format=None):
         
-        #unicode(request.user)
-        categ_amount= Transaction.objects.filter(wallet__user=request.user.id).values('category').order_by('category').annotate(total_amount=Sum('amount'))
+        categ_amount= Transaction.objects.filter(wallet__user=request.user.id, category__code = 'E', time__month=ddate.month).values('category').order_by('category').annotate(total_amount=Sum('amount'))
         
         #categ_amount = Transaction.objects.values('category').order_by('category').annotate(total_amount=Sum('amount'))
         
@@ -310,21 +282,35 @@ class ChartData(APIView):
         }
         return Response(data)
     
-	
-	
-	
-	
+class ChartDataWallet(APIView):
+    authentication_classes = (SessionAuthentication, BasicAuthentication)
+    permission_classes = (IsAuthenticated,)
 
+    def get(self, request, wallet_id, format=None):
+        
+        categ_amount= Transaction.objects.filter(wallet = wallet_id, category__code = 'E', time__month=ddate.month).values('category').order_by('category').annotate(total_amount=Sum('amount'))
+        
+        #categ_amount = Transaction.objects.values('category').order_by('category').annotate(total_amount=Sum('amount'))
+        
+        #print(request.user)
+        #print(categ_amount)
+        
+        labels = []
+        color = []
+        default_items = []
+        #fruits.append("orange")
+        for c in categ_amount:
+            cate = Category.objects.get(pk=c['category'])
+            default_items.append(c['total_amount'])
+            labels.append(cate.name)
+            color.append(cate.color)
 
-
-
-
-
-
-
-
-
-
+        data = {
+                "labels": labels,
+                "default": default_items,
+                "color": color,
+        }
+        return Response(data)
 
 
 
