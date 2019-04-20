@@ -1,0 +1,16 @@
+#: multilang/templates/multilang/greeting.html:6
+#: multilang/templates/multilang/index.html:7
+msgid "Hello world!"
+msgstr "chào thế giới!"
+
+#: multilang/templates/multilang/greeting.html:7
+msgid "Main page"
+msgstr "trang chính"
+
+#: multilang/templates/multilang/index.html:6
+msgid "Welcome"
+msgstr "chào mừng"
+
+#: multilang/urls.py:12
+msgid "^hello-world/"
+msgstr "^xin chào/"

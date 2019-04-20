@@ -25,6 +25,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/chart/data/', views.ChartData.as_view(), name = 'chartdata'),
     path('api/chart/data/<wallet_id>/', views.ChartDataWallet.as_view(), name = 'chartdatawallet'),
+    path('i18n/', include('django.conf.urls.i18n')),
 ]
 
 from django.views.generic import RedirectView

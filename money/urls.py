@@ -5,6 +5,7 @@ from . import views
 
 app_name = 'money'
 urlpatterns = [
+    #path('', views.switch_language, name='switch_language'),
     path('', views.base_generic, name='base_generic'),
     path('accounts/register/', views.create_account, name='create_account'),
     path('register/', views.register, name='register'),
@@ -19,7 +20,7 @@ urlpatterns = [
     path('decrement_month/', views.decrement_month, name='decrement_month'),
     path('inc_month/<wallet_id>', views.inc_month, name='inc_month'),
     path('dec_month/<wallet_id>', views.dec_month, name='dec_month'),
-   # path('chart/', views.chart, name='chart'),
+    path('switch_language/', views.switch_language, name='switch_language'),
 ]
 
 

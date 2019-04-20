@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from .models import Wallet, Category, Transaction
+from .models import Wallet, Category, Transaction, Category_tranlation, Language
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.shortcuts import redirect
@@ -9,11 +9,36 @@ dstr = datetime.today().strftime('%Y-%m-%d')
 ddate = datetime.today()
 from .sms import *
 
+user_language = 'English'
+category_tranlation = Category_tranlation.objects.filter(language__name=user_language)
+
+from django.utils import translation
+cur_language = translation.get_language()
+
+def switch_language(request):
+    global cur_language
+    global user_language
+    global category_tranlation
+    if cur_language == 'en' or cur_language == 'en-us':
+        user_language = 'Việt Nam'
+        cur_language = 'vi'
+        category_tranlation = Category_tranlation.objects.filter(language__name=user_language)
+    elif cur_language == 'vi':
+        user_language = 'English'
+        category_tranlation = Category_tranlation.objects.filter(language__name=user_language)
+        cur_language = 'en'
+    translation.activate(cur_language)
+    request.session[translation.LANGUAGE_SESSION_KEY] = cur_language
+    return redirect('money:base_generic')
+
 def base_generic(request):
     if request.user.is_authenticated:
         return redirect('money:transactions')
     else:
-        return render(request, 'base_generic.html')
+        context = {
+            'language': user_language,
+        }
+        return render(request, 'base_generic.html', context)
 
 def register(request):
     return render(request, 'registration/register.html')
@@ -29,7 +54,7 @@ def create_account(request):
         return render(request, 'registration/login.html')
     except (IntegrityError): 
         message = 'account existed!'
-        return render(request, 'registration/login.html')
+        return render(request, 'registration/register.html')
 
 import calendar
 def decrement_month(request):
@@ -69,14 +94,13 @@ def inc_month(request, wallet_id):
     return redirect('money:transactions_in_wallet', wallet_id)
     
 #from django.core.exceptions import ObjectDoesNotExist
-category = Category.objects.all()
 
 def transactions(request):#login_view all_wallets
     username = request.user.username
     all_wallets = Wallet.objects.filter(user=request.user.id)
     #Entry.objects.filter(blog__name='Beatles Blog')
     if len(all_wallets) != 0:
-        all_transactions = Transaction.objects.filter(wallet__user__id=request.user.id).filter(time__month=ddate.month)
+        all_transactions = Transaction.objects.filter(wallet__user__id=request.user.id).filter(time__month=ddate.month, time__year=ddate.year)
         class Wallets:
             inflow = '0'
             balance = '0'
@@ -92,12 +116,13 @@ def transactions(request):#login_view all_wallets
             'username':username,
             'wallet': wallet,
             'all_transactions': all_transactions,
-            'category': category,
+            'category': category_tranlation,
             'all_wallets': all_wallets,
             'in_wallet':'All wallets',
             'date': dstr,
             'bank': bank,
             'ddate': ddate.strftime('%B-%Y'),
+            'cur_language': cur_language,
         }
         return render(request, 'money/transactions.html', context)
     else:
@@ -111,7 +136,7 @@ def transactions_in_wallet(request, wallet_id):
     all_wallets = Wallet.objects.filter(user=request.user.id)
     w = Wallet.objects.get(pk=wallet_id)
     #Entry.objects.filter(blog__name='Beatles Blog')
-    all_transactions = Transaction.objects.filter(wallet=wallet_id).filter(time__month=ddate.month)
+    all_transactions = Transaction.objects.filter(wallet=wallet_id).filter(time__month=ddate.month, time__year=ddate.year)
     class Wallets:
             inflow = '0'
             balance = '0'
@@ -128,13 +153,14 @@ def transactions_in_wallet(request, wallet_id):
         'username':username,
         'wallet': wallet,
         'all_transactions': all_transactions,
-        'category': category,
+        'category': category_tranlation,
         'all_wallets': all_wallets,
         'in_wallet': wallet.name,
         'wallet_id': int(wallet_id),
         'date': dstr,
         'bank': bank,
         'ddate': ddate.strftime('%B-%Y'),
+        'cur_language': cur_language,
     }
     return render(request, 'money/transactions.html', context)
     
@@ -152,7 +178,7 @@ def add_wallet(request):
     if a:
         w = Wallet(user=request.user, name=name, balance=balance)
         w.save()
-        lcategory = Category.objects.filter(name='Others_Income').get()
+        lcategory = Category.objects.filter(category_tranlation__name='Others_Income').get()
         t = Transaction(wallet = w, amount=balance, category=lcategory, time=dstr)
         t.save()
         return redirect('money:transactions_in_wallet', w.id)
@@ -165,7 +191,8 @@ def add_wallet(request):
     
 def add_transaction(request):
     amount = request.POST['amount']
-    lcategory = Category.objects.get(name=request.POST['category'])
+    #lcategory = Category.objects.get(name=request.POST['category'])
+    lcategory = Category.objects.get(category_tranlation__name=request.POST['category'])
     #wallet = Wallet.objects.filter(user=request.user).exclude(name=request.POST['wallet']).get()
     wallet = Wallet.objects.filter(name=request.POST['wallet']).get(user=request.user)
     #name=request.POST.get('category', False)
@@ -203,7 +230,7 @@ def add_message(request):
             
     if i >= 0:
         Message(message, i)
-        lcategory = Category.objects.get(name=result['Category'])
+        lcategory = Category.objects.get(category_tranlation__name=result['Category'])
         t = Transaction(wallet = wallet, amount=result['Amount'], category=lcategory, note=result['Note'], time=result['Time'])
         t.save()
         wallet.save()
@@ -219,7 +246,7 @@ def delete_or_edit(request, transaction_id):
         return redirect('money:transactions_in_wallet', wallet.id)
     elif 'save' in request.POST:
         transaction.amount = request.POST['amount']
-        lcategory = Category.objects.get(name=request.POST['category'])
+        lcategory = Category.objects.get(category_tranlation__name=request.POST['category'])
         transaction.category = lcategory
         transaction.note = request.POST['note']
         transaction.time = request.POST['time']
@@ -271,8 +298,9 @@ class ChartData(APIView):
         #fruits.append("orange")
         for c in categ_amount:
             cate = Category.objects.get(pk=c['category'])
+            catetl = Category_tranlation.objects.get(category=cate, language__name=user_language)
             default_items.append(c['total_amount'])
-            labels.append(cate.name)
+            labels.append(catetl.name)
             color.append(cate.color)
 
         data = {
@@ -301,8 +329,9 @@ class ChartDataWallet(APIView):
         #fruits.append("orange")
         for c in categ_amount:
             cate = Category.objects.get(pk=c['category'])
+            catetl = Category_tranlation.objects.get(category=cate, language__name=user_language)
             default_items.append(c['total_amount'])
-            labels.append(cate.name)
+            labels.append(catetl.name)
             color.append(cate.color)
 
         data = {
@@ -311,17 +340,6 @@ class ChartDataWallet(APIView):
                 "color": color,
         }
         return Response(data)
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 {% load static %}
+{% load i18n %}
 <html lang="en">
 <head>
     <title>MoneySMS</title>
-    <meta charset="utf-8">
+    <!--<meta charset="utf-8">-->
     <meta http-equiv="X-UA-Compatible" content="IE=edge"><!--ho tro browser phien ban thap hon-->
     <meta name="viewport" content="width=device-width, initial-scale=1"><!-- phu hop voi kich co man hinh khac nhau-->
     <!--<link rel="stylesheet" href="{% static "money/css/bootstrap.min.css" %}">
@@ -55,6 +56,13 @@
         .center {
             text-align: center;
         }
+        .navbar-logo{
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:50px;
+            width:100%;
+        }
     </style>
 </head>
 <body>
@@ -66,7 +74,7 @@
     <ul class="nav navbar-nav navbar-right">
         {% block dropdown %}
             <li><a href="{% url 'money:register'%}">Sign up</a></li>   
-            <li><a href="{% url 'login'%}">Login</a></li>   
+            <li><a href="{% url 'login'%}">Login</a></li>  
         {% endblock %}
     </ul>
     {% block navbar-brand %}
@@ -74,7 +82,22 @@
     </div>
     </nav>
     <div class="container">
-        {% block content %}{% endblock %}
+        {% block content %}
+            <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
+                <input name="next" type="hidden" value="{% url 'money:switch_language' %}">
+                <select name="language">
+                    {% get_current_language as LANGUAGE_CODE %}
+                    {% get_available_languages as LANGUAGES %}
+                    {% get_language_info_list for LANGUAGES as languages %}
+                    {% for language in languages %}
+                        <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
+                            {{ language.name_local }} ({{ language.code }})
+                        </option>
+                    {% endfor %}
+                </select>
+                <input type="submit" value="Go">
+            </form>
+        {% endblock %}
         <script>
             $(document).ready(function(){
               {% block jquery %}{% endblock %}

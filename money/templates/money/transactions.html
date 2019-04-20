@@ -1,11 +1,11 @@
 {% extends "base_generic.html" %}
-
+{% load i18n %}
 {% block dropdown %}
     <li class="dropdown">
         <a class="dropdown-toggle" data-toggle="dropdown" href="{% url 'login' %}">{{ username }}</a>
         <ul class="dropdown-menu">
             <!--<li><a href="{% url 'login' %}">Login</a></li>-->
-            <li><a href="{% url 'logout' %}">Logout</a></li>
+            <li><a href="{% url 'logout' %}">{% if cur_language == 'vi' %}Đăng xuất{% else %}Logout{% endif %}</a></li>
         </ul>
     </li>
 {% endblock %}
@@ -40,15 +40,15 @@
             <table class="table">
                  <tbody>
                     <tr>
-                        <th>Overview</th>
+                        <th>{% if cur_language == 'vi' %}Tổng quan{% else %}Overview{% endif %}</th>
                         <td></td>
                     </tr>
                     <tr>
-                        <td>Inflow</td>
+                        <td>{% if cur_language == 'vi' %}Khoản thu{% else %}Inflow{% endif %}</td>
                         <td class="text-right">{{ wallet.inflow }}</td>
                     </tr>
                     <tr>
-                        <td>Outflow</td>
+                        <td>{% if cur_language == 'vi' %}Khoản chi{% else %}Outflow{% endif %}</td>
                         <td class="text-right">{{ wallet.outflow }}</td>
                     </tr>
                     <tr>
@@ -56,7 +56,7 @@
                     </tr>
                     <tr>
                         <td colspan="2" class="text-center">
-                            <a href="" data-toggle="modal" data-target="#report">View report for this period</a>
+                            <a href="" data-toggle="modal" data-target="#report">{% if cur_language == 'vi' %}Xem biểu đồ các khoản chi{% else %}View report for this period{% endif %}</a>
                         </td>
                     </tr>
                 </tbody>
@@ -70,7 +70,7 @@
             <table class="table">
                     <tr>
                         <td class="text-center">
-                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#transaction">Add Transaction</button>
+                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#transaction">{% if cur_language == 'vi' %}Thêm giao dịch{% else %}Add Transaction{% endif %}</button>
                         </td>
                     </tr>
             </table>
@@ -86,11 +86,17 @@
                     <table class="table">
                         <tbody>
                             <tr>
-                                <td>{{ transaction.time }}</td>
+                                <td>
+                                    {% blocktrans with transaction.time as time %}{{ time }}{% endblocktrans %}
+                                </td>
                                 <td class="text-right">{{ transaction.amount }}</td>
                             </tr>
                             <tr class='btn clickable-tr' data-toggle="modal" data-target="#edit_transaction{{ transaction.id }}" href="#">
-                                <td>{{ transaction.category }}</td>
+                                {% for c in category %}
+                                    {% if c.category == transaction.category %}
+                                        <td>{{ c.name }}</td>
+                                    {% endif %}
+                                {% endfor %}
                                 <td class="text-right"></td>
                             </tr>
                             <div id="edit_transaction{{ transaction.id }}" class="modal fade" role="dialog">
@@ -104,19 +110,19 @@
                                                     <span class="aleft">
                                                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                                                     </span>&nbsp;
-                                                    Edit transaction
+                                                    {% if cur_language == 'vi' %}Sửa giao dịch{% else %}Edit transaction{% endif %}
                                                     <span class="aright">
-                                                        <a class="btn" href="" data-dismiss="modal" data-toggle="modal" data-target="#delete_transaction{{ transaction.id }}">Delete</a>
+                                                        <a class="btn" href="" data-dismiss="modal" data-toggle="modal" data-target="#delete_transaction{{ transaction.id }}">{% if cur_language == 'vi' %}Xóa{% else %}Delete{% endif %}</a>
                                                     </span>
                                                 </h4>
                                             </div>
                                             <div class="modal-body">
                                                 <div class="form-group">
-                                                    <label for="amount" class="col-form-label">Amount</label>
-                                                    <input class="form-control" type="text" id="amount" name="amount" pattern="[0-9].*" value="{{ transaction.amount }}">
+                                                    <label for="amount" class="col-form-label">{% if cur_language == 'vi' %}Số tiền{% else %}Amount{% endif %}</label>
+                                                    <input class="form-control" type="text" id="amount" name="amount" required pattern="[1-9]{1}\d{0,9}" value="{{ transaction.amount }}">
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="category" class="col-form-label">Category</label>
+                                                    <label for="category" class="col-form-label">{% if cur_language == 'vi' %}Loại giao dịch{% else %}Category{% endif %}</label>
                                                     <select class="form-control" id="category" name="category">
                                                         {% for c in category %}
                                                             {% if c == transaction.category %}
@@ -128,15 +134,15 @@
                                                     </select>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="note" class="col-form-label">Note</label>
+                                                    <label for="note" class="col-form-label">{% if cur_language == 'vi' %}Ghi chú{% else %}Note{% endif %}</label>
                                                     <input class="form-control" type="text" name="note" id="note" value="{{ transaction.note }}">
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="time" class="col-form-label">Time</label>
+                                                    <label for="time" class="col-form-label">{% if cur_language == 'vi' %}Thời gian{% else %}Time{% endif %}</label>
                                                     <input class="form-control" type="date" name="time" id="time" value="{{ transaction.time|date:"c" }}" required pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}">
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="wallet" class="col-form-label">Wallet</label>
+                                                    <label for="wallet" class="col-form-label">{% if cur_language == 'vi' %}Ví{% else %}Wallet{% endif %}</label>
                                                     <select class="form-control" id="wallet" name="wallet" disabled>
                                                         {% for w in all_wallets %}
                                                             {% if w == transaction.wallet %}
@@ -153,8 +159,8 @@
                                                 </div>-->
                                             </div>
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
-                                                <button type="submit" class="btn btn-primary" name="save">Save</button>
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">{% if cur_language == 'vi' %}Hủy{% else %}Cancel{% endif %}</button>
+                                                <button type="submit" class="btn btn-primary" name="save">{% if cur_language == 'vi' %}Lưu{% else %}Save{% endif %}</button>
                                             </div>
                                         </div>
                                     </form>
@@ -165,11 +171,11 @@
                                     <!-- Modal content-->
                                     <div class="modal-content">
                                         <div class="modal-body">
-                                            <p>Delete this transaction?</p>
+                                            <p>{% if cur_language == 'vi' %}Bạn muốn xóa giao dịch này?{% else %}Delete this transaction?{% endif %}</p>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
-                                            <button type="submit" class="btn btn-default" name="yes" form="{{ transaction.id }}">Yes</button>
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">{% if cur_language == 'vi' %}Không{% else %}No{% endif %}</button>
+                                            <button type="submit" class="btn btn-default" name="yes" form="{{ transaction.id }}">{% if cur_language == 'vi' %}Có{% else %}Yes{% endif %}</button>
                                         </div>
                                     </div>
                                 </div>
@@ -178,6 +184,9 @@
                                 $('.clickable-tr').on('click', function(){
                                     var myLink = $(this).attr('href');
                                     window.location.href = myLink;
+                                });
+                                $("#edit_transaction{{ transaction.id }}").on('hidden.bs.modal', function(e){
+                                       $(this).find("#{{ transaction.id }}")[0].reset();
                                 });
                             </script>
                         </tbody>
@@ -196,18 +205,18 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Add transaction</h4>
+                <h4 class="modal-title">{% if cur_language == 'vi' %}Thêm giao dịch{% else %}Add transaction{% endif %}</h4>
             </div>
             <div class="modal-body">
                 <!-- form -->
                 <form method="POST" action="{% url 'money:add_transaction' %}" id="add_transaction" role="form">
                     {% csrf_token %}
                     <div class="form-group">
-                        <label for="amount" class="col-form-label">Amount</label>
-                        <input class="form-control" type="text" id="amount" name="amount" pattern="[0-9].*">
+                        <label for="amount" class="col-form-label">{% if cur_language == 'vi' %}Số tiền{% else %}Amount{% endif %}</label>
+                        <input class="form-control" type="text" id="amount" name="amount" required pattern="[1-9]{1}\d{0,9}">
                     </div>
                     <div class="form-group">
-                        <label for="category" class="col-form-label">Category</label>
+                        <label for="category" class="col-form-label">{% if cur_language == 'vi' %}Loại giao dịch{% else %}Category{% endif %}</label>
                         <select class="form-control" id="category" name="category">
                             {% for c in category %}
                                 <option>{{ c.name }}</option>
@@ -215,15 +224,15 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="note" class="col-form-label">Note</label>
+                        <label for="note" class="col-form-label">{% if cur_language == 'vi' %}Ghi chú{% else %}Note{% endif %}</label>
                         <input class="form-control" type="text" name="note" id="note">
                     </div>
                     <div class="form-group">
-                        <label for="time" class="col-form-label">Time</label>
+                        <label for="time" class="col-form-label">{% if cur_language == 'vi' %}Thời gian{% else %}Time{% endif %}</label>
                         <input class="form-control" type="date" name="time" id="time" value="{{ date }}" required pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}">
                     </div>
                     <div class="form-group">
-                        <label for="wallet" class="col-form-label">Wallet</label>
+                        <label for="wallet" class="col-form-label">{% if cur_language == 'vi' %}Ví{% else %}Wallet{% endif %}</label>
                         <select class="form-control" id="wallet" name="wallet">
                             {% for w in all_wallets %}
                                 {% if w.id == wallet_id %}
@@ -239,14 +248,19 @@
             </div>
             <div class="modal-footer">
                 <div class="text-left">
-                    <a data-toggle="modal" data-target="#sms" href="" data-dismiss="modal">SMSBanking</a>
+                    <a data-toggle="modal" data-target="#sms" href="" data-dismiss="modal">{% if cur_language == 'vi' %}Dùng tin nhắn{% else %}SMSBanking{% endif %}</a>
                 </div>
-                <button class="btn btn-primary" type="submit" form="add_transaction">Add</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
+                <button class="btn btn-primary" type="submit" form="add_transaction">{% if cur_language == 'vi' %}Thêm{% else %}Add{% endif %}</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">{% if cur_language == 'vi' %}Hủy{% else %}Cancel{% endif %}</button>
             </div>
         </div>
     </div>
-</div> 
+</div>
+<script>
+    $("#transaction").on('hidden.bs.modal', function(e){
+        $(this).find("#add_transaction")[0].reset();
+    });
+</script>
 <div id="all_wallets" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <!-- Modal content-->
@@ -256,14 +270,14 @@
                     <span class="aleft">
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </span> &nbsp;
-                    Select wallet
+                    {% if cur_language == 'vi' %}Chọn ví{% else %}Select wallet{% endif %}
                     <span class="aright">
-                        <a class="btn" href="#" data-dismiss="modal" data-toggle="modal" data-target="#my_wallets">Edit</a>
+                        <a class="btn" href="#" data-dismiss="modal" data-toggle="modal" data-target="#my_wallets">{% if cur_language == 'vi' %}Sửa{% else %}Edit{% endif %}</a>
                     </span>
                 </h4>
             </div>
             <div class="modal-body">
-                <p><a href="{% url 'money:transactions' %}">All wallets</a></p>
+                <p><a href="{% url 'money:transactions' %}">{% if cur_language == 'vi' %}Tất cả các ví{% else %}All wallets{% endif %}</a></p>
                 <hr>
                 <table>
                     <thead>
@@ -278,8 +292,8 @@
                 </table>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-dismiss="modal" data-toggle="modal" data-target="#add_wallet">Add wallet</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" data-toggle="modal" data-target="#add_wallet">{% if cur_language == 'vi' %}Thêm ví{% else %}Add wallet{% endif %}</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>
@@ -290,7 +304,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">My wallets</h4>
+                <h4 class="modal-title">{% if cur_language == 'vi' %}Ví của tôi{% else %}My wallets{% endif %}</h4>
             </div>
             <div class="modal-body">
                 <table>
@@ -304,8 +318,8 @@
                 </table>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-dismiss="modal" data-toggle="modal" data-target="#add_wallet">Add wallet</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" data-toggle="modal" data-target="#add_wallet">{% if cur_language == 'vi' %}Thêm ví{% else %}Add wallet{% endif %}</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">{% if cur_language == 'vi' %}Hủy{% else %}Cancel{% endif %}</button>
             </div>
         </div>
     </div>
@@ -316,7 +330,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Report</h4>
+                <h4 class="modal-title">{% if cur_language == 'vi' %}Biểu đồ{% else %}Report{% endif %}</h4>
             </div>
             <script>
                 {% block jquery %}
@@ -357,7 +371,7 @@
                     options: {
                         title: {
                             display: true,
-                            text: 'Report By Category',
+                            text: 'Report By Expense Category',
                         }
                     }
                 });
@@ -368,32 +382,28 @@
                 <canvas id="myChart" width="750" height="400"></canvas>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">{% if cur_language == 'vi' %}Hủy{% else %}Cancel{% endif %}</button>
             </div>
-            <script>
-                $('#report').on('hidden.bs.modal', function () {
-                location.reload();});     // reloads the current page
-            </script>
         </div>
     </div>
 </div>
 <div id="sms" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <!-- Modal content-->
-        <form method="POST" action="{% url 'money:add_message' %}">
+        <form method="POST" action="{% url 'money:add_message' %}" id="msg">
             {% csrf_token %}
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Add transaction</h4>
+                    <h4 class="modal-title">{% if cur_language == 'vi' %}Thêm giao dịch{% else %}Add Transaction{% endif %}</h4>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="message" class="col-form-label">Message:</label>
+                        <label for="message" class="col-form-label">{% if cur_language == 'vi' %}Tin nhắn:{% else %}Mesage:{% endif %}</label>
                         <textarea class="form-control" id="message" name="message" required data-pattern="{{ bank }}"></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="wallet" class="col-form-label">Wallet</label>
+                        <label for="wallet" class="col-form-label">{% if cur_language == 'vi' %}Ví{% else %}Wallet{% endif %}</label>
                         <select class="form-control" id="wallet" name="wallet">
                             {% for w in all_wallets %}
                                 {% if w.id == wallet_id %}
@@ -407,24 +417,29 @@
                 </div>
                 <div class="modal-footer">
                     <div class="text-left">
-                        <a data-toggle="modal" data-target="#transaction" href="" data-dismiss="modal">Transaction</a>
+                        <a data-toggle="modal" data-target="#transaction" href="" data-dismiss="modal">{% if cur_language == 'vi' %}Giao Dịch{% else %}Transaction{% endif %}</a>
                     </div>
-                    <button type="submit" class="btn btn-primary">Add</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
+                    <button type="submit" class="btn btn-primary">{% if cur_language == 'vi' %}Thêm{% else %}Add{% endif %}</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{% if cur_language == 'vi' %}Hủy{% else %}Cancel{% endif %}</button>
                 </div>
             </div>
         </form>
     </div>
 </div>
+<script>
+    $("sms").on('hidden.bs.modal', function(e){
+        $(this).find("#msg")[0].reset();
+    });
+</script>
 <div id="add_wallet" class="modal fade" role="dialog">
     <div class="modal-dialog">
-        <form method="POST" action="{% url 'money:add_wallet' %}">
+        <form method="POST" action="{% url 'money:add_wallet' %}" id="addwallet">
         {% csrf_token %}
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Add wallet</h4>
+                    <h4 class="modal-title">{% if cur_language == 'vi' %}Thêm ví{% else %}Add wallet{% endif %}</h4>
                 </div>
                 <div class="modal-body">
                     <!--<div class="form-group">
@@ -432,22 +447,27 @@
                             <input class="form-control" type="text" id="email">
                     </div>-->
                     <div class="form-group">
-                        <label for="name" class="col-form-label">Name</label>
+                        <label for="name" class="col-form-label">{% if cur_language == 'vi' %}Tên{% else %}Name{% endif %}</label>
                             <input class="form-control" type="text" name="name" id="name">
                     </div>
                     <div class="form-group">
-                        <label for="balance" class="col-form-label">Balance</label>
-                            <input class="form-control" type="text" name="balance" id="balance" pattern="[0-9].*">
+                        <label for="balance" class="col-form-label">{% if cur_language == 'vi' %}Số dư{% else %}Balance{% endif %}</label>
+                            <input class="form-control" type="text" name="balance" id="balance" required pattern="[1-9]{1}\d{0,9}">
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Add</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
+                    <button type="submit" class="btn btn-primary">{% if cur_language == 'vi' %}Thêm{% else %}Add{% endif %}</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{% if cur_language == 'vi' %}Hủy{% else %}Cancel{% endif %}</button>
                 </div>
             </div>
         </form>
     </div>
 </div>
+<script>
+    $("#add_wallet").on('hidden.bs.modal', function(e){
+        $(this).find("#addwallet")[0].reset();
+    });
+</script>
 {% for wallet in all_wallets %}
     <div id="edit_wallet{{ wallet.id }}" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -460,9 +480,9 @@
                             <span class="aleft">
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                             </span>&nbsp;
-                            Edit wallet
+                            {% if cur_language == 'vi' %}Sửa ví{% else %}Edit wallet{% endif %}
                             <span class="aright">
-                                <a class="btn" href="" data-dismiss="modal" data-toggle="modal" data-target="#delete_wallet{{ wallet.id }}">Delete</a>
+                                <a class="btn" href="" data-dismiss="modal" data-toggle="modal" data-target="#delete_wallet{{ wallet.id }}">{% if cur_language == 'vi' %}Xóa{% else %}Delete{% endif %}</a>
                             </span>
                         </h4>
                     </div>
@@ -472,29 +492,34 @@
                                 <input class="form-control" type="text" id="email">
                         </div>-->
                         <div class="form-group">
-                            <label for="name" class="col-form-label">Name</label>
+                            <label for="name" class="col-form-label">{% if cur_language == 'vi' %}Tên{% else %}Name{% endif %}</label>
                                 <input class="form-control" type="text" name="name" id="name" value="{{ wallet.name }}">
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary" name="save">Save</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
+                        <button type="submit" class="btn btn-primary" name="save">{% if cur_language == 'vi' %}Lưu{% else %}Save{% endif %}</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">{% if cur_language == 'vi' %}Hủy{% else %}Cancel{% endif %}</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
+    <script>
+        $("#edit_wallet{{ wallet.id }}").on('hidden.bs.modal', function(e){
+            $(this).find("#{{ wallet.id }}")[0].reset();
+        });
+    </script>
     <div id="delete_wallet{{ wallet.id }}" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-body">
-                    <h4><p>Do you want to delete this wallet?</p></h4>
-                    <p>You will also delete all of its transactions and this action cannot be undone</p>
+                    <h4><p>{% if cur_language == 'vi' %}Bạn muốn xóa ví này?{% else %}Do you want to delete this wallet?{% endif %}</p></h4>
+                    <p>{% if cur_language == 'vi' %}Bạn sẽ mất tất cả giao dịch thuộc ví này và không thể lấy lại.{% else %}You will also delete all of its transactions and this action cannot be undone{% endif %}</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
-                    <button type="submit" class="btn btn-default" name="yes" form="{{ wallet.id }}">Yes</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{% if cur_language == 'vi' %}Không{% else %}No{% endif %}</button>
+                    <button type="submit" class="btn btn-default" name="yes" form="{{ wallet.id }}">{% if cur_language == 'vi' %}Có{% else %}yes{% endif %}</button>
                 </div>
             </div>
         </div>
