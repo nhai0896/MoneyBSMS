@@ -23,7 +23,7 @@
                     <div class="pagination">
                         <div class="pagination center">
                             <a href="{% url 'money:dec_month' wallet_id %}">❮</a>
-                            <a href="">{{ ddate }}</a>
+                            <a href="">{% blocktrans with dm=ddate.month dy=ddate.year %}{{ dm }} - {{ dy }}{% endblocktrans %}</a>
                             <a href="{% url 'money:inc_month' wallet_id %}">❯</a>
                         </div>
                     </div>
@@ -31,7 +31,7 @@
                     <div class="pagination">
                         <div class="pagination center">
                             <a href="{% url 'money:decrement_month' %}">❮</a>
-                            <a href="">{{ ddate }}</a>
+                            <a href="">{% blocktrans with dm=ddate.month dy=ddate.year %}{{ dm }} - {{ dy }}{% endblocktrans %}</a>
                             <a href="{% url 'money:increment_month' %}">❯</a>
                         </div>
                     </div>
@@ -87,7 +87,7 @@
                         <tbody>
                             <tr>
                                 <td>
-                                    {% blocktrans with transaction.time as time %}{{ time }}{% endblocktrans %}
+                                    {% blocktrans with time=transaction.time %}{{ time }}{% endblocktrans %}
                                 </td>
                                 <td class="text-right">{{ transaction.amount }}</td>
                             </tr>
@@ -339,16 +339,20 @@
                 /*if (wallet_id) {
                     endpoint += wallet_id.toString();
                 }*/
-                var defaultData = []
-                var color_c = []
-                var labels = [];
+                var defaultDataE = []
+                var color_cE = []
+                var labelsE = []
+                var defaultDataI = []
+                var color_cI = []
+                var labelsI = [];
                 $.ajax({
                     method: "GET",
                     url: endpoint,
                     success: function(data){
-                        labels = data.labels
-                        defaultData = data.default
-                        color_c = data.color
+                        labelsE = data.labelsE
+                        defaultDataE = data.defaultE
+                        color_cE = data.colorE
+                        defaultDataI = data.defaultI
                         setChart()
                     },
                     error: function(error_data){
@@ -357,29 +361,54 @@
                     }
                 })
                 function setChart(){
-                    var ctx = document.getElementById("myChart");
-                    var myChart = new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: '# of Votes',
-                            data: defaultData,
-                            backgroundColor: color_c,
-                        }]
-                    },
-                    options: {
-                        title: {
-                            display: true,
-                            text: 'Report By Expense Category',
+                    var ctxE = document.getElementById("myChartE");
+                    var myChartE = new Chart(ctxE, {
+                        type: 'pie',
+                        data: {
+                            labels: labelsE,
+                            datasets: [{
+                                label: '',
+                                data: defaultDataE,
+                                backgroundColor: color_cE,
+                            }]
+                        },
+                        options: {
+                            title: {
+                                display: true,
+                                text: 'Expense',
+                            },
+                            legend: {
+                                display: false,
+                            }
                         }
-                    }
-                });
+                    });
+                    var ctxI = document.getElementById("myChartI");
+                    var myChartI = new Chart(ctxI, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Income', 'Expense'],
+                            datasets: [{
+                                label: '',
+                                data: defaultDataI,
+                                backgroundColor: ['#FF0000', '#0101DF'],
+                            }]
+                        },
+                        options: {
+                            title: {
+                                display: true,
+                                text: 'Income/Expense',
+                            },
+                            legend: {
+                                display: false,
+                            }
+                        }
+                    });
                 }
                 {% endblock %}
             </script>
             <div class="modal-body">
-                <canvas id="myChart" width="750" height="400"></canvas>
+                <div class="first-column"><canvas id="myChartE"></canvas></div>
+                <div class="second-column"><canvas id="myChartI"></canvas></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">{% if cur_language == 'vi' %}Hủy{% else %}Cancel{% endif %}</button>

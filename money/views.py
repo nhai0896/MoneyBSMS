@@ -121,7 +121,7 @@ def transactions(request):#login_view all_wallets
             'in_wallet':'All wallets',
             'date': dstr,
             'bank': bank,
-            'ddate': ddate.strftime('%B-%Y'),
+            'ddate': ddate,
             'cur_language': cur_language,
         }
         return render(request, 'money/transactions.html', context)
@@ -159,7 +159,7 @@ def transactions_in_wallet(request, wallet_id):
         'wallet_id': int(wallet_id),
         'date': dstr,
         'bank': bank,
-        'ddate': ddate.strftime('%B-%Y'),
+        'ddate': ddate,
         'cur_language': cur_language,
     }
     return render(request, 'money/transactions.html', context)
@@ -285,28 +285,44 @@ class ChartData(APIView):
 
     def get(self, request, format=None):
         
-        categ_amount= Transaction.objects.filter(wallet__user=request.user.id, category__code = 'E', time__month=ddate.month).values('category').order_by('category').annotate(total_amount=Sum('amount'))
+        categ_amount= Transaction.objects.filter(wallet__user=request.user.id, time__month=ddate.month, time__year=ddate.year).values('category').order_by('category').annotate(total_amount=Sum('amount'))
         
         #categ_amount = Transaction.objects.values('category').order_by('category').annotate(total_amount=Sum('amount'))
         
         #print(request.user)
         #print(categ_amount)
         
-        labels = []
-        color = []
-        default_items = []
+        labelsE = []
+        colorE = []
+        default_itemsE = []
+        """labelsI = ['Income', 'Expense']
+        colorI = ['#FF0000', '#0101DF']"""
+        default_itemsI = []
+        ex = 0
+        inc = 0
         #fruits.append("orange")
         for c in categ_amount:
             cate = Category.objects.get(pk=c['category'])
             catetl = Category_tranlation.objects.get(category=cate, language__name=user_language)
-            default_items.append(c['total_amount'])
-            labels.append(catetl.name)
-            color.append(cate.color)
-
+            if cate.code == 'E':
+                default_itemsE.append(c['total_amount'])
+                labelsE.append(catetl.name)
+                colorE.append(cate.color)
+                ex += c['total_amount']
+            elif cate.code == 'I':
+                inc += c['total_amount']
+                """default_itemsI.append(c['total_amount'])
+                labelsI.append(catetl.name)
+                colorI.append(cate.color)"""
+        default_itemsI.append(inc)
+        default_itemsI.append(ex)
         data = {
-                "labels": labels,
-                "default": default_items,
-                "color": color,
+                "labelsE": labelsE,
+                "defaultE": default_itemsE,
+                "colorE": colorE,
+               # "labelsI": labelsI,
+                "defaultI": default_itemsI,
+                #"colorI": colorI,
         }
         return Response(data)
     
@@ -316,28 +332,44 @@ class ChartDataWallet(APIView):
 
     def get(self, request, wallet_id, format=None):
         
-        categ_amount= Transaction.objects.filter(wallet = wallet_id, category__code = 'E', time__month=ddate.month).values('category').order_by('category').annotate(total_amount=Sum('amount'))
+        categ_amount= Transaction.objects.filter(wallet = wallet_id, time__month=ddate.month, time__year=ddate.year).values('category').order_by('category').annotate(total_amount=Sum('amount'))
         
         #categ_amount = Transaction.objects.values('category').order_by('category').annotate(total_amount=Sum('amount'))
         
         #print(request.user)
         #print(categ_amount)
         
-        labels = []
-        color = []
-        default_items = []
+        labelsE = []
+        colorE = []
+        default_itemsE = []
+        """labelsI = ['Income', 'Expense']
+        colorI = ['#FF0000', '#0101DF']"""
+        default_itemsI = []
         #fruits.append("orange")
         for c in categ_amount:
             cate = Category.objects.get(pk=c['category'])
             catetl = Category_tranlation.objects.get(category=cate, language__name=user_language)
-            default_items.append(c['total_amount'])
-            labels.append(catetl.name)
-            color.append(cate.color)
-
+            if cate.code == 'E':
+                default_itemsE.append(c['total_amount'])
+                labelsE.append(catetl.name)
+                colorE.append(cate.color)
+                ex += c['total_amount']
+            elif cate.code == 'I':
+                inc += c['total_amount']
+                """default_itemsI.append(c['total_amount'])
+                labelsI.append(catetl.name)
+                colorI.append(cate.color)"""
+        #ex = str(0-int(ex))
+        print(ex)
+        default_itemsI.append(inc)
+        default_itemsI.append(ex)
         data = {
-                "labels": labels,
-                "default": default_items,
-                "color": color,
+                "labelsE": labelsE,
+                "defaultE": default_itemsE,
+                "colorE": colorE,
+               # "labelsI": labelsI,
+                "defaultI": default_itemsI,
+               # "colorI": colorI,
         }
         return Response(data)
 

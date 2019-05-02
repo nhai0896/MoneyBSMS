@@ -63,6 +63,21 @@
             height:50px;
             width:100%;
         }
+        .modal-dialog {
+            overflow-y: initial !important;
+        }
+        .modal-body {
+            height: 250px;
+            overflow-y: auto;
+        }
+        .first-column {
+            width: 50%;
+            float: left;
+        }
+        .second-column {
+            width: 50%;
+            float: right;
+        }
     </style>
 </head>
 <body>
@@ -97,6 +112,8 @@
                 </select>
                 <input type="submit" value="Go">
             </form>
+            {% trans "hello" %}
+            {% blocktrans %}hello-world Translate this part{% endblocktrans %}
         {% endblock %}
         <script>
             $(document).ready(function(){
